@@ -1,11 +1,11 @@
-class Task {
+class BaselineTask {
     String taskID;
     String description;
     int deadline; // Days left until due
     boolean isCompleted;
 
     // Constructor: This sets up the task when we create it
-    public Task(String id, String desc, int daysLeft) {
+    public BaselineTask(String id, String desc, int daysLeft) {
         this.taskID = id;
         this.description = desc;
         this.deadline = daysLeft;
@@ -25,7 +25,7 @@ class Prerequisite {
 
 public class BaselineTaskManager {
     // We use plain fixed-size arrays to hold our data
-    private Task[] taskArray;
+    private BaselineTask[] taskArray;
     private int totalTasks;
     
     private Prerequisite[] prereqArray;
@@ -33,7 +33,7 @@ public class BaselineTaskManager {
 
     // This initializes our arrays with a fixed maximum size (e.g., 100 items)
     public BaselineTaskManager(int maximumCapacity) {
-        taskArray = new Task[maximumCapacity];
+        taskArray = new BaselineTask[maximumCapacity];
         totalTasks = 0;
         
         prereqArray = new Prerequisite[maximumCapacity];
@@ -49,7 +49,7 @@ public class BaselineTaskManager {
         }
         
         // Put the task into the next empty spot in our array
-        Task newTask = new Task(id, description, deadline);
+        BaselineTask newTask = new BaselineTask(id, description, deadline);
         taskArray[totalTasks] = newTask;
         totalTasks = totalTasks + 1; // Move the counter forward
         System.out.println("Successfully added: " + description);
@@ -63,10 +63,9 @@ public class BaselineTaskManager {
     }
 
     // 3. OPERATION: SEARCHING (Linear Search)
-    // This is naive because it looks through the array one by one from start to finish.
-    public Task findTaskByLinearSearch(String id) {
+    public BaselineTask findTaskByLinearSearch(String id) {
         for (int i = 0; i < totalTasks; i = i + 1) {
-            Task currentTask = taskArray[i];
+            BaselineTask currentTask = taskArray[i];
             if (currentTask.taskID.equals(id)) {
                 return currentTask; // Found it!
             }
@@ -76,7 +75,7 @@ public class BaselineTaskManager {
 
     // 4. OPERATION: EDITING
     public void editTaskDeadline(String id, int newDeadline) {
-        Task targetTask = findTaskByLinearSearch(id);
+        BaselineTask targetTask = findTaskByLinearSearch(id);
         if (targetTask != null) {
             targetTask.deadline = newDeadline;
             System.out.println("Updated " + targetTask.description + " new deadline to " + newDeadline + " days.");
@@ -87,7 +86,7 @@ public class BaselineTaskManager {
 
     // 5. OPERATION: DELETING / COMPLETING
     public void completeTask(String id) {
-        Task targetTask = findTaskByLinearSearch(id);
+        BaselineTask targetTask = findTaskByLinearSearch(id);
         if (targetTask != null) {
             targetTask.isCompleted = true;
             System.out.println("-> Task Completed: " + targetTask.description);
@@ -97,10 +96,9 @@ public class BaselineTaskManager {
     }
 
     // 6. OPERATION: SCHEDULING (First-Come, First-Served)
-    // Looks for the first uncompleted task that isn't locked by an unfinished prerequisite
-    public Task getNextScheduledTask() {
+    public BaselineTask getNextScheduledTask() {
         for (int i = 0; i < totalTasks; i = i + 1) {
-            Task candidate = taskArray[i];
+            BaselineTask candidate = taskArray[i];
             
             // If it's already done, skip it
             if (candidate.isCompleted == true) {
@@ -112,7 +110,7 @@ public class BaselineTaskManager {
             for (int j = 0; j < totalPrereqs; j = j + 1) {
                 Prerequisite check = prereqArray[j];
                 if (check.afterTaskID.equals(candidate.taskID)) {
-                    Task prereqTask = findTaskByLinearSearch(check.beforeTaskID);
+                    BaselineTask prereqTask = findTaskByLinearSearch(check.beforeTaskID);
                     if (prereqTask != null && prereqTask.isCompleted == false) {
                         isLocked = true; // Prerequisite is NOT done yet, so this task is locked!
                     }
@@ -128,7 +126,6 @@ public class BaselineTaskManager {
     }
 
     // 7. OPERATION: SORTING (Bubble Sort)
-    // A simple, slow sorting algorithm that swaps adjacent elements if they are in the wrong order
     public void sortAndDisplayChronologically() {
         if (totalTasks == 0) {
             System.out.println("No tasks to display.");
@@ -136,7 +133,7 @@ public class BaselineTaskManager {
         }
 
         // Make a temporary copy of our tasks array so we don't ruin the original submission order
-        Task[] sortedCopy = new Task[totalTasks];
+        BaselineTask[] sortedCopy = new BaselineTask[totalTasks];
         for (int i = 0; i < totalTasks; i = i + 1) {
             sortedCopy[i] = taskArray[i];
         }
@@ -144,9 +141,8 @@ public class BaselineTaskManager {
         // Bubble Sort execution: O(n^2)
         for (int i = 0; i < totalTasks - 1; i = i + 1) {
             for (int j = 0; j < totalTasks - i - 1; j = j + 1) {
-                // If the left task has a further deadline than the right task, swap them
                 if (sortedCopy[j].deadline > sortedCopy[j + 1].deadline) {
-                    Task temporaryContainer = sortedCopy[j];
+                    BaselineTask temporaryContainer = sortedCopy[j];
                     sortedCopy[j] = sortedCopy[j + 1];
                     sortedCopy[j + 1] = temporaryContainer;
                 }
@@ -156,7 +152,7 @@ public class BaselineTaskManager {
         // Print the sorted results
         System.out.println("\n--- MASTER LIST (Sorted using Baseline Bubble Sort) ---");
         for (int i = 0; i < totalTasks; i = i + 1) {
-            Task t = sortedCopy[i];
+            BaselineTask t = sortedCopy[i];
             String status = "PENDING";
             if (t.isCompleted == true) {
                 status = "DONE";
@@ -165,43 +161,35 @@ public class BaselineTaskManager {
         }
     }
 
-    // The Main program execution simulating real actions
     public static void main(String[] args) {
         System.out.println("=== RUNNING BASELINE SYSTEM OVERVIEW ===");
         BaselineTaskManager manager = new BaselineTaskManager(100);
 
-        // Test Edge Case: Sorting empty structure
         manager.sortAndDisplayChronologically();
 
-        // 1. Insert tasks
         System.out.println("\n[Testing Insert]");
         manager.createNewTask("T1", "Read Chapter 4", 5);
         manager.createNewTask("T2", "Write Essay Draft", 7);
         manager.createNewTask("T3", "Do Math Homework", 2);
 
-        // 2. Insert dependencies (T2 depends on T1)
         manager.createDependency("T1", "T2");
 
-        // 3. Search and Edit
         System.out.println("\n[Testing Search & Edit]");
-        Task search = manager.findTaskByLinearSearch("T3");
+        BaselineTask search = manager.findTaskByLinearSearch("T3");
         if (search != null) {
             System.out.println("Found task: " + search.description);
         }
-        manager.editTaskDeadline("T3", 1); // Edit deadline from 2 days to 1 day
+        manager.editTaskDeadline("T3", 1);
 
-        // 4. Check Scheduler Recommendation
         System.out.println("\n[Testing Scheduler]");
-        Task next = manager.getNextScheduledTask();
+        BaselineTask next = manager.getNextScheduledTask();
         if (next != null) {
             System.out.println("System recommends you do: " + next.description);
         }
 
-        // 5. Complete a task
         System.out.println("\n[Testing Completion]");
         manager.completeTask("T3");
 
-        // 6. Final display
         manager.sortAndDisplayChronologically();
     }
 }
