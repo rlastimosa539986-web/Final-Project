@@ -119,8 +119,6 @@ class CustomHashTable {
 // ========================================================
 // OPTIMIZATION 2: CUSTOM MIN-HEAP (O(log n) Scheduling Priority Queue)
 // ========================================================
-
-
 class CustomMinHeap {
     private Task[] binaryTreeArray;
     private int currentHeapSize;
@@ -144,8 +142,11 @@ class CustomMinHeap {
         }
         Task mostUrgent = binaryTreeArray[0];
         binaryTreeArray[0] = binaryTreeArray[currentHeapSize - 1];
-        currentHeapSize = currentHeapSize - 1;
-        sinkDownwards(0);
+        
+        // --- FIXED HERE: We decrease the size FIRST, then sink downwards ---
+        currentHeapSize = currentHeapSize - 1; 
+        sinkDownwards(0);                      
+        
         return mostUrgent;
     }
 
@@ -181,7 +182,6 @@ class CustomMinHeap {
         }
     }
 }
-
 // ========================================================
 // OPTIMIZATION 3: CUSTOM GRAPH (Topological Lock/Unlock Resolver)
 // ========================================================
